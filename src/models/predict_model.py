@@ -1,12 +1,24 @@
+import argparse
+
 import joblib
 import pandas as pd
 
-# 1. Load saved model
-clf = joblib.load("models/model.pkl")
 
-# 2. Load new data (same structure as training features)
-df_new = pd.read_parquet("new_data.parquet")  # Change file name as needed
+def main():
+    parser = argparse.ArgumentParser(description="Run predictions using trained model.")
+    parser.add_argument("--data", required=True, help="Path to new data parquet file.")
+    args = parser.parse_args()
 
-# 3. Predict
-predictions = clf.predict(df_new)
-print("Predictions:", predictions)
+    # 1. Load saved model
+    clf = joblib.load("models/model.pkl")
+
+    # 2. Load new data
+    df_new = pd.read_parquet(args.data)
+
+    # 3. Predict
+    predictions = clf.predict(df_new)
+    print("Predictions:", predictions)
+
+
+if __name__ == "__main__":
+    main()
