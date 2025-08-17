@@ -1,0 +1,23 @@
+[project]
+name = "mlops_backend_service"
+version = "0.1.0"
+description = "FastAPI backend for MLOps project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.116.1",
+    "pandas>=2.3.1",
+    "scikit-learn>=1.7.1",
+    "uvicorn>=0.35.0",
+    "python-multipart>=0.0.20"
+]
+
+[tool.ruff.lint]
+ignore = ["E402"]
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100

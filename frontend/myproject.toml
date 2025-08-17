@@ -1,0 +1,17 @@
+[project]
+name = "mlops_frontend_service"
+version = "0.1.0"
+description = "Streamlit frontend for MLOps project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "streamlit>=1.48.1",
+    "pandas>=2.3.1",
+    "openpyxl>=3.1.5"
+]
+
+[tool.ruff.lint]
+ignore = ["E402"]
+
+[tool.black]
+line-length = 100

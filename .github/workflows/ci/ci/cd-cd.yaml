@@ -1,0 +1,29 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted  # must be set up on EC2
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Lint with ruff
+        run: pip install ruff && ruff check .
+
+      - name: Build backend image
+        run: docker build -t ml-backend ./backend
+
+      - name: Build frontend image
+        run: docker build -t ml-frontend ./frontend
+
+      - name: Deploy with Docker Compose
+        run: docker compose up -d --build
