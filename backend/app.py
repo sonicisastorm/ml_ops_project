@@ -32,7 +32,7 @@ app.add_middleware(
 )
 
 # Load trained model
-MODEL_PATH = Path(__file__).parent.parent / "model" / "model.pkl"
+MODEL_PATH = Path(__file__).parent.parent / "models" / "model.pkl"
 if not MODEL_PATH.exists():
     raise RuntimeError(f"Model file not found at {MODEL_PATH}")
 model = joblib.load(MODEL_PATH)

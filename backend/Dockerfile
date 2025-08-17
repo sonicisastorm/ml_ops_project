@@ -5,6 +5,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-COPY model /app/model
+COPY models /app/models
+
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
