@@ -1,65 +1,61 @@
-This project extends Hw1 into a full MLOps pipeline, with:
+This project turns Hw1 into a complete MLOps pipeline with:
 
-A FastAPI backend exposing a /predict API.
+A FastAPI backend that exposes a /predict API.
 
-A Streamlit frontend that interacts with the backend.
+A Streamlit frontend that connects to the backend.
 
-Dockerized microservices for backend & frontend.
+Dockerized microservices for both the backend and frontend.
 
 Docker Compose orchestration for local development.
 
-Deployment to AWS EC2 with CI/CD using GitHub Actions and a self-hosted runner.
+Deployment to AWS EC2 with continuous integration and delivery using GitHub Actions and a self-hosted runner.
 
 Backend (FastAPI)
 
-Located in backend/
+Found in the backend/ directory.
 
-Exposes REST API endpoints:
+Offers REST API endpoints:
 
-POST /predict → returns prediction from the trained ML model.
+POST /predict, which returns predictions from the trained ML model.
 
-Model is serialized (saved in model/) and loaded at runtime.
+The model is saved in the model/ directory and loaded during runtime.
 
 Frontend (Streamlit)
 
-Located in frontend/
+Found in the frontend/ directory.
 
-Provides a user-friendly web interface for model inference.
+Provides an easy-to-use web interface for model inference.
 
-Sends input features to backend /predict endpoint.
+Sends input features to the backend /predict endpoint.
 
-Displays predictions + visualizations.
+Displays predictions and visualizations.
 
 Runs on port 8501 by default.
 
-
 Containerization & Orchestration
 
-Both services are containerized with Docker and orchestrated with Docker Compose.
+Both services are containerized with Docker and managed with Docker Compose.
 
-
-Run everything locally:
+To run everything locally, use:
 docker compose up --build
 
 Deployment on AWS EC2
 
-Launch an EC2 instance (Ubuntu).
+First, launch an EC2 instance running Ubuntu.
 
-Install Docker & Docker Compose.
+Install Docker and Docker Compose.
 
 Clone this repository.
 
 Set up a self-hosted GitHub Actions runner on the EC2 instance.
 
-Push code → GitHub Actions builds, tests, and deploys automatically.
+When you push code, GitHub Actions builds, tests, and deploys automatically.
 
-
-Workflow runs on push to main branch.
+Workflow runs when there is a push to the main branch.
 
 Jobs:
 
-Linting (with ruff)
+Linting with ruff.
 
-Docker image build (backend + frontend)
-
-Deploy to EC2 (via self-hosted runner)
+Note:
+In the Assets folder you will find the screenshots
