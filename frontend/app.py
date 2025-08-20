@@ -5,7 +5,6 @@ import pandas as pd
 
 st.set_page_config(page_title="ML Predictor", layout="wide")
 
-# Use API_URL env var if provided, otherwise default to localhost
 API_URL = os.getenv("API_URL", "http://localhost:8000/predict")
 HEALTH_URL = API_URL.replace("/predict", "/health")
 
@@ -25,7 +24,7 @@ if st.button("Check Backend Health"):
 
 st.divider()
 
-# --- Prediction form ---
+# prediction form
 f1 = st.number_input("Feature 1", value=1.0)
 f2 = st.number_input("Feature 2", value=2.0)
 f3 = st.number_input("Feature 3", value=3.0)

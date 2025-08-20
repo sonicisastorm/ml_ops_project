@@ -14,7 +14,6 @@ from fastapi.middleware.cors import CORSMiddleware
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI app
 app = FastAPI(
     title="FastAPI Backend server for ML project",
     description="REST API for ML project",
@@ -31,7 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load trained model
+# Loading the training model
 MODEL_PATH = Path(__file__).parent.parent / "models" / "model.pkl"
 if not MODEL_PATH.exists():
     raise RuntimeError(f"Model file not found at {MODEL_PATH}")
@@ -54,7 +53,6 @@ def predict(features: Dict[str, Any]) -> Dict[str, Any]:
     }
     """
     try:
-        # Ensure consistent feature order
         X = pd.DataFrame([features])
         preds = model.predict(X)
 
