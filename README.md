@@ -1,61 +1,215 @@
-This project turns Hw1 into a complete MLOps pipeline with:
+# ML Ops Project
 
-A FastAPI backend that exposes a /predict API.
+![CI/CD](https://github.com/sonicisastorm/ml_ops_project/actions/workflows/ci-build.yaml/badge.svg)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-green.svg)](https://www.python.org/)
 
-A Streamlit frontend that connects to the backend.
+A full end-to-end MLOps pipeline featuring a **FastAPI** prediction backend, a **Streamlit** frontend, **Docker** containerization, and automated **CI/CD** deployment to **AWS EC2** via GitHub Actions.
 
-Dockerized microservices for both the backend and frontend.
+---
 
-Docker Compose orchestration for local development.
+## Architecture Overview
 
-Deployment to AWS EC2 with continuous integration and delivery using GitHub Actions and a self-hosted runner.
+```
+┌─────────────────────┐        HTTP        ┌──────────────────────┐
+│  Streamlit Frontend │  ──── /predict ──►  │  FastAPI Backend     │
+│     (port 8501)     │                     │     (port 8000)      │
+└─────────────────────┘                     └──────────┬───────────┘
+                                                       │ joblib.load
+                                                ┌──────▼───────┐
+                                                │  model.pkl   │
+                                                └──────────────┘
+```
 
-Backend (FastAPI)
+Both services run inside Docker containers orchestrated by Docker Compose, and are deployed to an AWS EC2 instance through a GitHub Actions CI/CD pipeline.
 
-Found in the backend/ directory.
+---
 
-Offers REST API endpoints:
+## Project Structure
 
-POST /predict, which returns predictions from the trained ML model.
+```
+ml_ops_project-main/
+├── .github/
+│   └── workflows/
+│       └── ci/cd-cd.yaml       # GitHub Actions CI/CD pipeline
+├── assets/                     # Screenshots and project images
+├── backend/
+│   ├── src/
+│   │   ├── data/
+│   │   │   └── make_dataset.py         # Data loading & preprocessing
+│   │   ├── features/
+│   │   │   └── build_features.py       # Feature engineering
+│   │   ├── models/
+│   │   │   ├── train_model.py          # Model training script
+│   │   │   └── predict_model.py        # Inference script
+│   │   └── visualization/
+│   │       └── visualize.py            # Plotting utilities
+│   ├── notebooks/
+│   │   ├── ali-gasimov-eda.ipynb       # Exploratory data analysis
+│   │   ├── ali-gasimov-fe1.ipynb       # Feature engineering (part 1)
+│   │   ├── ali-gasimov-fe2.ipynb       # Feature engineering (part 2)
+│   │   └── ali-gasimov-trainmodel.ipynb# Model training notebook
+│   ├── data/
+│   │   ├── external/                   # Raw data from third-party sources
+│   │   ├── interim/                    # Intermediate transformed data
+│   │   └── processed/                  # Final datasets ready for modeling
+│   ├── app.py                          # FastAPI application
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend/
+│   ├── app.py                          # Streamlit application
+│   ├── Dockerfile
+│   └── requirements.txt
+├── models/
+│   └── model.pkl                       # Trained model artifact
+├── docker-compose.yml
+├── pyproject.toml
+└── LICENSE
+```
 
-The model is saved in the model/ directory and loaded during runtime.
+---
 
-Frontend (Streamlit)
+## Services
 
-Found in the frontend/ directory.
+### Backend (FastAPI)
 
-Provides an easy-to-use web interface for model inference.
+The backend loads a pre-trained model at startup and exposes two endpoints:
 
-Sends input features to the backend /predict endpoint.
+| Method | Endpoint   | Description                        |
+|--------|------------|------------------------------------|
+| GET    | `/health`  | Returns service status and UTC time |
+| POST   | `/predict` | Accepts feature JSON, returns predictions |
 
-Displays predictions and visualizations.
+**Example request:**
+```json
+POST /predict
+{
+    "feature1": 3.5,
+    "feature2": 1.2,
+    "feature3": 0.7
+}
+```
 
-Runs on port 8501 by default.
+**Example response:**
+```json
+{
+    "status": "success",
+    "predictions": [42.7],
+    "num_predictions": 1
+}
+```
 
-Containerization & Orchestration
+Interactive API docs are available at `http://localhost:8000/docs` when running locally.
 
-Both services are containerized with Docker and managed with Docker Compose.
+### Frontend (Streamlit)
 
-To run everything locally, use:
+A simple web UI running on port `8501` that lets you:
+- Check the backend health status
+- Input feature values via number fields
+- Send requests to `/predict` and display the result
+
+The frontend connects to the backend via the `API_URL` environment variable (defaults to `http://localhost:8000/predict`).
+
+---
+
+## Datasets
+
+The project uses two datasets stored in AWS S3:
+
+- **Amsterdam Housing Prices** (`HousingPrices-Amsterdam-August-2021.csv`) — used for the primary regression task
+- **Ramen Ratings** (`ramen-ratings.csv`) — used for supplementary analysis
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/)
+- Python 3.10+ (for local development without Docker)
+
+### Run with Docker Compose (recommended)
+
+```bash
+git clone https://github.com/sonicisastorm/ml_ops_project.git
+cd ml_ops_project-main
+
 docker compose up --build
+```
 
-Deployment on AWS EC2
+- Frontend: http://localhost:8501  
+- Backend API: http://localhost:8000  
+- API Docs: http://localhost:8000/docs
 
-First, launch an EC2 instance running Ubuntu.
+### Run Locally (without Docker)
 
-Install Docker and Docker Compose.
+**Backend:**
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
 
-Clone this repository.
+**Frontend:**
+```bash
+cd frontend
+pip install -r requirements.txt
+streamlit run app.py
+```
 
-Set up a self-hosted GitHub Actions runner on the EC2 instance.
+### Train the Model
 
-When you push code, GitHub Actions builds, tests, and deploys automatically.
+```bash
+cd backend
+uv sync
+uv run python -m src.models.train_model
+```
 
-Workflow runs when there is a push to the main branch.
+---
 
-Jobs:
+## CI/CD Pipeline
 
-Linting with ruff.
+The GitHub Actions workflow (`.github/workflows/ci/cd-cd.yaml`) triggers on every push to `main` and runs on a **self-hosted runner** provisioned on EC2:
 
-Note:
-In the Assets folder you will find the screenshots
+1. **Checkout** — pulls the latest code
+2. **Lint** — runs `ruff check .` to enforce code quality
+3. **Build** — builds both `ml-backend` and `ml-frontend` Docker images
+4. **Deploy** — runs `docker compose up -d --build` on the EC2 instance
+
+### Setting Up the EC2 Runner
+
+1. Launch an Ubuntu EC2 instance
+2. Install Docker and Docker Compose
+3. Clone this repository onto the instance
+4. Register a [self-hosted GitHub Actions runner](https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners) on the instance
+5. Push to `main` — deployments will happen automatically from that point on
+
+---
+
+## Code Quality
+
+The project uses `ruff`, `black`, and `isort` for linting and formatting. Run them via `uvx` (no extra dev dependencies needed):
+
+```bash
+# Lint
+uvx ruff check .
+
+# Format
+uvx isort .
+uvx black .
+
+# Auto-fix
+uvx ruff check --fix .
+```
+
+---
+
+## Screenshots
+
+Screenshots of the running application are available in the `assets/` directory.
+
+---
+
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).
